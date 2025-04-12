@@ -45,8 +45,8 @@ document.getElementById('processButton').addEventListener('click', () => {
         const fechaFormateada = fechaObj.toLocaleDateString('en-US'); // MM/DD/YYYY
         const folio = comprobante?.getAttribute('Folio') || 'SIN_FOLIO';
 
-        // Punto #6: SubTotal
-        const subTotal = parseFloat(comprobante?.getAttribute('SubTotal') || '0').toFixed(2);
+        // Punto #6: Total
+        const Total = parseFloat(comprobante?.getAttribute('Total') || '0').toFixed(2);
 
         // Punto #7: TotalImpuestosTrasladados
         let impuestosTrasladados = '0.00';
@@ -74,7 +74,7 @@ document.getElementById('processButton').addEventListener('click', () => {
             if (noIdent === 'TARIFA') {
                 tarifaImporte = importe;
             } else {
-                detalles.push(`D ${noIdent} N ${cantidad} ${valorUnitario} ${importe}`);
+                detalles.push(`D\t${noIdent}\tN\t${cantidad}\t${valorUnitario}\t${importe}`);
             }
         }
 
@@ -88,16 +88,16 @@ document.getElementById('processButton').addEventListener('click', () => {
             descuentoLinea = `-${parseFloat(descuento).toFixed(2)}`;
         }
 
-        // Construcción de la cabecera con los puntos 6 y 7 + adicionales
-        let cabecera = `H ${rfcEmisor.padStart(6, '0')} ${numeroTienda.padStart(6, '0')} ${fechaFormateada} ${folio} ${fechaFormateada} ${subTotal} IVA (TAX) ${impuestosTrasladados}`;
+        // Construcción de la cabecera con doble tabulador en punto 2 y 3
+        let cabecera = `H\t${rfcEmisor.padStart(6, '0')}\t${numeroTienda.padStart(6, '0')}\t\t${fechaFormateada}\t${folio}\t${fechaFormateada}\t${Total}\tIVA (TAX)\t${impuestosTrasladados}`;
         if (tarifaImporte) {
-            cabecera += ` DISTRIBUCION Y ALMACENAJE FLETE ${tarifaImporte}`;
+            cabecera += `\tDISTRIBUCION Y ALMACENAJE FLETE\t${tarifaImporte}`;
         }
         if (descuentoLinea) {
-            cabecera += ` DESCUENTOS DEL PROVEEDOR ${descuentoLinea}`;
+            cabecera += `\tDESCUENTOS DEL PROVEEDOR\t${descuentoLinea}`;
         }
 
-                // Armar el contenido final
+        // Armar el contenido final
         const contenidoFinal = [cabecera, ...detalles].join('\n');
 
         // Descargar archivo con nombre 009 + Folio
@@ -106,7 +106,6 @@ document.getElementById('processButton').addEventListener('click', () => {
         link.href = URL.createObjectURL(blob);
         link.download = `009${folio}.txt`;
         link.click();
-
     };
 
     reader.readAsText(file);
